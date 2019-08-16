@@ -21,19 +21,12 @@ self.addEventListener('install', function(event) {
     event.waitUntil(
       caches.open(CACHE_NAME)
         .then(function(cache) {
-          fetch('asset-manifest.json')
-            .then(response => {
-              response.json();
-            })
-            .then(assets => {
-              // We will cache initial page and the main.js
-              // We could also cache assets like CSS and images
-              const urlsToCache = [
-                '/',
-                assets['App.js']
+              const cacheFiles = [ 
+                './',
+                './index.html',
+                '../src/assets/hindi-image.jpg',
               ];
-              cache.addAll(urlsToCache);
-            })
+              cache.addAll(cacheFiles);
         })
     );
   }
@@ -41,9 +34,16 @@ self.addEventListener('install', function(event) {
 // Here we intercept request and serve up the matching files
 self.addEventListener('fetch', function(event) {
   if (doCache) {
+    console.log('[ServiceWorker] request:', event.request)
     event.respondWith(
-      caches.match(event.request).then(function(response) {
-        return response || fetch(event.request);
+      caches.open(CACHE_NAME).then(function(cache) {
+        return cache.match(event.request).then(function(response) {
+          var fetchPromise = fetch(event.request).then(function(networkResponse) {
+            cache.put(event.request, networkResponse.clone())
+            return networkResponse
+          })
+          return response || fetchPromise
+        })
       })
     );
   }

@@ -1,37 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import { getTranslation } from './redux/actions'
+import * as Styled from './styles'
+import hindiImage from './assets/hindi-image.jpg' 
 
-import * as Styled from './styles'  
-//import { dataArray } from './jsonArray'
-/*
-const DataTable = props => {
-  const tableData = props.dataSet.map(data => {
-    const {ID, Name, Gender, Class, Info} = data
-      return (
-          <tr>
-            <Td>{ID}</Td>
-            <Td>{Name}</Td>
-            <Td>{Gender}</Td>
-            <Td>{Class}</Td>
-            <Td>{Info}</Td>
-          </tr>
-      )
-  })
-  return (
-    <Table> 
-      <tr>
-        <Th>ID</Th>
-        <Th>Name</Th>
-        <Th>Gender</Th>
-        <Th>Class</Th>
-        <Th>Info</Th>
-      </tr>
-      {tableData}
-    </Table>
-  )
-}
-*/
 const Loader = (props) => {
   if (props.isLoading)
     return <Styled.LoaderAnimation/>
@@ -84,6 +56,7 @@ class App extends React.Component {
           >
             Translate
           </Styled.Button>
+          <img src={hindiImage} alt='hindi-image' width='150'/>
         </div>
         <Styled.Text isError={this.state.error}>
           {this.state.showLoader?
