@@ -1,23 +1,26 @@
 // Flag for enabling cache in production
 var doCache = true;
-var CACHE_NAME = 'pwa-app-cache';
+var CACHE_NAME = 'prelim-cache';
 // Delete old caches
 self.addEventListener('activate', event => {
   const currentCachelist = [CACHE_NAME];
   event.waitUntil(
-    caches.keys()
-      .then(keyList =>
-        Promise.all(keyList.map(key => {
-          if (!currentCachelist.includes(key)) {
-            return caches.delete(key);
-          }
-        }))
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.filter(function(cacheName) {
+          if (cacheName == 'pwa-app-cache')
+            return true
+        }).map(function(cacheName) {
+          return caches.delete(cacheName)
+        })
       )
-  );
+    })
+  )
 });
 // This triggers when user starts the app
 self.addEventListener('install', function(event) {
   if (doCache) {
+    self.skipWaiting()
     event.waitUntil(
       caches.open(CACHE_NAME)
         .then(function(cache) {
@@ -37,6 +40,10 @@ self.addEventListener('fetch', function(event) {
     console.log('[ServiceWorker] request:', event.request)
     event.respondWith(
       caches.open(CACHE_NAME).then(function(cache) {
+        if(!(event.request.url.indexOf('http') === 0)){
+          //skip request
+          return
+       }
         return cache.match(event.request).then(function(response) {
           var fetchPromise = fetch(event.request).then(function(networkResponse) {
             cache.put(event.request, networkResponse.clone())
